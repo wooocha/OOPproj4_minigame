@@ -1,3 +1,10 @@
+ï»¿/*
+* ì§ ë§ì¶”ê¸° ê²Œì„ì…ë‹ˆë‹¤.
+* ì¢Œìš° ë°©í–¥í‚¤ë¡œ ì»¤ì„œë¥¼ ì´ë™ì‹œí‚¤ê³  ìŠ¤í˜ì´ìŠ¤ë°”ë¡œ ì¹´ë“œë¥¼ ë’¤ì§‘ìŠµë‹ˆë‹¤.
+* ê°™ì€ ìŒì„ ê³ ë¥´ë©´ ì¹´ë“œê°€ ë’¤ì§‘íŒ ìƒíƒœë¡œ ìœ ì§€ë˜ê³  count++
+* ë‹¤ ë§ì¶”ë©´ ì†Œìš”ì‹œê°„ì´ ê²°ê³¼ë¡œ í‘œì‹œë©ë‹ˆë‹¤.
+*/
+
 #include <iostream>
 #include <Windows.h>
 #include <string>
@@ -9,11 +16,11 @@ using namespace std;
 
 #define INIT_POS 1
 
-void CursorView(bool b) // °ÔÀÓÁß Ä¿¼­¸¦ º¸ÀÌ°Å³ª ¼û±â´Â ÇÔ¼ö
+void CursorView(bool b) // ê²Œì„ì¤‘ ì»¤ì„œë¥¼ ë³´ì´ê±°ë‚˜ ìˆ¨ê¸°ëŠ” í•¨ìˆ˜
 {
     CONSOLE_CURSOR_INFO cursorInfo = { 0, };
-    cursorInfo.dwSize = 1; //Ä¿¼­ ±½±â (1 ~ 100)
-    cursorInfo.bVisible = b; //Ä¿¼­ Visible TRUE(º¸ÀÓ) FALSE(¼û±è)
+    cursorInfo.dwSize = 1; //ì»¤ì„œ êµµê¸° (1 ~ 100)
+    cursorInfo.bVisible = b; //ì»¤ì„œ Visible TRUE(ë³´ì„) FALSE(ìˆ¨ê¹€)
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
 }
 
@@ -40,7 +47,7 @@ struct Pos
     int y;
 };
 
-//Å°º¸µå ÀÔ·ÂÀ» ÀúÀåÇØ ³õÀº enum
+//í‚¤ë³´ë“œ ì…ë ¥ì„ ì €ì¥í•´ ë†“ì€ enum
 enum KEYBOARD
 {
     IS_ARROW = 224,
@@ -51,7 +58,7 @@ enum KEYBOARD
     SPACE = 32,
 };
 
-//»ö»óÀ» ÀúÀåÇØ³õÀº enum
+//ìƒ‰ìƒì„ ì €ì¥í•´ë†“ì€ enum
 enum COLOR
 {
     GREEN = 10,
@@ -63,51 +70,53 @@ enum COLOR
 };
 
 class Matching {
-private :
-    char map[4][4]; // player°¡ º¸´Â ¸Ê
-    char answerMap[4][4]; // ´äÀ» ÀúÀåÇÑ ¸Ê
-    Pos player; // ÇÃ·¹ÀÌ¾îÀÇ À§Ä¡
-    Pos flipPos[2]; // ÇÃ·¹ÀÌ¾î°¡ µÚÁıÀº Ä«µåÀ§Ä¡
-    int flipCount; // ÇÃ·¹ÀÌ¾î°¡ Ä«µå¸¦ µÚÁıÀº È½¼ö (<2)
-    int matchedCardCount; //ÇÃ·¹ÀÌ°¡ ¸ÂÃá Ä«µå ½ÖÀÇ °³¼ö
-    double timeCount; // ¼Ò¿ä½Ã°£
-    clock_t startTime; // °ÔÀÓ ½ÃÀÛ ½Ã°£
-public :
+private:
+    char map[4][4]; // playerê°€ ë³´ëŠ” ë§µ
+    char answerMap[4][4]; // ë‹µì„ ì €ì¥í•œ ë§µ
+    Pos player; // í”Œë ˆì´ì–´ì˜ ìœ„ì¹˜
+    Pos flipPos[2]; // í”Œë ˆì´ì–´ê°€ ë’¤ì§‘ì€ ì¹´ë“œìœ„ì¹˜
+    int flipCount; // í”Œë ˆì´ì–´ê°€ ì¹´ë“œë¥¼ ë’¤ì§‘ì€ íšŸìˆ˜ (<2)
+    int matchedCardCount; //í”Œë ˆì´ê°€ ë§ì¶˜ ì¹´ë“œ ìŒì˜ ê°œìˆ˜
+    double timeCount; // ì†Œìš”ì‹œê°„
+    clock_t startTime; // ê²Œì„ ì‹œì‘ ì‹œê°„
+public:
     Matching() {};
 
     void start() {
         CursorView(false);
         init();
-        
+
         int key = 0;
         while (true) {
-            key = GetKeyDown();    //Å°º¸µå ÀÔ·Â ¹ŞÀ½
+            key = GetKeyDown();    //í‚¤ë³´ë“œ ì…ë ¥ ë°›ìŒ
 
             if (key == KEYBOARD::IS_ARROW)
             {
-                //È­»ìÇ¥ ÀÔ·Â½Ã
+                //í™”ì‚´í‘œ ì…ë ¥ì‹œ
                 moveCur();
             }
             if (key == KEYBOARD::SPACE)
             {
-                //½ºÆäÀÌ½º¹Ù ÀÔ·Â½Ã
+                //ìŠ¤í˜ì´ìŠ¤ë°” ì…ë ¥ì‹œ
                 flipCard();
             }
 
-            draw(); // È­¸é ±×¸®±â
-            checkCard(); // ÇÃ·¹ÀÌ¾î°¡ ¼±ÅÃÇÑ Ä«µåµéÀÌ °°Àº Â¦ÀÎÁö È®ÀÎ
-            setTimeCount(); //¼Ò¿ä½Ã°£ °è»ê,Ãâ·Â
+            draw(); // í™”ë©´ ê·¸ë¦¬ê¸°
+            checkCard(); // í”Œë ˆì´ì–´ê°€ ì„ íƒí•œ ì¹´ë“œë“¤ì´ ê°™ì€ ì§ì¸ì§€ í™•ì¸
+            setTimeCount(); //ì†Œìš”ì‹œê°„ ê³„ì‚°,ì¶œë ¥
 
-            if (matchedCardCount == 8) { // Â¦À» ¸ğµÎ ¸ÂÃß¾úÀ»½Ã °á°ú Ãâ·Â ÈÄ Àç½ÃÀÛ
+            if (matchedCardCount == 8) { // ì§ì„ ëª¨ë‘ ë§ì¶”ì—ˆì„ì‹œ ê²°ê³¼ ì¶œë ¥ í›„ ì¬ì‹œì‘
                 draw();
                 printResult();
+                Sleep(5000);
                 init();
+                system("cls");
             }
         }
         CursorView(true);
     }
 
-    void init() { // ÃÊ±âÈ­
+    void init() { // ì´ˆê¸°í™”
         player.x = 0;
         player.y = 0;
         flipCount = 0;
@@ -117,26 +126,26 @@ public :
             for (int j = 0; j < 4; j++) {
                 map[i][j] = '?';
             }
-       }
+        }
         startTime = clock();
     }
 
-    void flipCard() { // ½ºÆäÀÌ½º¹Ù ÀÔ·Â½Ã Ä«µå¸¦ µÚÁı´Â(?¿¡¼­ °ªÀ¸·Î ¹Ù²Ù´Â) ¿¬»ê
-        
-        if (map[player.y][player.x] == '?') { // player°¡ °¡¸®Å°´Â Ä«µå°¡ ? ÀÏ¶§¸¸ Ä«µå¸¦ µÚÁı´Â´Ù.
+    void flipCard() { // ìŠ¤í˜ì´ìŠ¤ë°” ì…ë ¥ì‹œ ì¹´ë“œë¥¼ ë’¤ì§‘ëŠ”(?ì—ì„œ ê°’ìœ¼ë¡œ ë°”ê¾¸ëŠ”) ì—°ì‚°
+
+        if (map[player.y][player.x] == '?') { // playerê°€ ê°€ë¦¬í‚¤ëŠ” ì¹´ë“œê°€ ? ì¼ë•Œë§Œ ì¹´ë“œë¥¼ ë’¤ì§‘ëŠ”ë‹¤.
             flipPos[flipCount].x = player.x;
             flipPos[flipCount].y = player.y;
             map[player.y][player.x] = answerMap[player.y][player.x];
             flipCount++;
         }
-        
+
     }
 
     void moveCur() {
-        // ¹æÇâÅ°¸¦ ÀÔ·Â¹ŞÀ¸¸é, ¸ÕÀú ¿ø·¡ ÀÖ´ø player cursor¸¦ Áö¿î´Ù.
-        GotoXY(INIT_POS + (player.x * 7), INIT_POS + (player.y * 4) + 3); 
+        // ë°©í–¥í‚¤ë¥¼ ì…ë ¥ë°›ìœ¼ë©´, ë¨¼ì € ì›ë˜ ìˆë˜ player cursorë¥¼ ì§€ìš´ë‹¤.
+        GotoXY(INIT_POS + (player.x * 7), INIT_POS + (player.y * 4) + 3);
         printf("   ");
-        //¹æÇâÅ° ÀÔ·ÂÀ» ¹Ş¾Æ¼­, player¸¦ ±×¿¡ ¸Â°Ô ÀÌµ¿½ÃÅ²´Ù.
+        //ë°©í–¥í‚¤ ì…ë ¥ì„ ë°›ì•„ì„œ, playerë¥¼ ê·¸ì— ë§ê²Œ ì´ë™ì‹œí‚¨ë‹¤.
         switch (_getch())
         {
         case KEYBOARD::LEFT:
@@ -184,9 +193,9 @@ public :
                     {
                         SetTextColor(MINT);
                     }
-                    if (cnt == 0) cout << "¦£¦¡¦¡¦¤   ";
-                    if (cnt == 1) cout << "¦¢ " << c << "¦¢   ";
-                    if (cnt == 2) cout << "¦¦¦¡¦¡¦¥   ";
+                    if (cnt == 0) cout << "â”Œâ”€â”€â”   ";
+                    if (cnt == 1) cout << "â”‚ " << c << "â”‚   ";
+                    if (cnt == 2) cout << "â””â”€â”€â”˜   ";
                     SetTextColor(WHITE);
                 }
             }
@@ -198,8 +207,8 @@ public :
         cout << "COUNT : " << matchedCardCount << "/8";
     }
 
-    void setCard() { // °ÔÀÓÀÌ ½ÃÀÛÇÒ¶§ Ä«µåÀ§Ä¡¸¦ ·£´ıÇÏ°Ô ¼³Á¤ÇØÁÖ´Â ÇÔ¼ö
-        
+    void setCard() { // ê²Œì„ì´ ì‹œì‘í• ë•Œ ì¹´ë“œìœ„ì¹˜ë¥¼ ëœë¤í•˜ê²Œ ì„¤ì •í•´ì£¼ëŠ” í•¨ìˆ˜
+
         answerMap[0][0] = 'A';
         answerMap[0][1] = 'A';
         answerMap[0][2] = 'B';
@@ -218,10 +227,10 @@ public :
         answerMap[3][3] = 'H';
         random_device random;
 
-        // random_device ¸¦ ÅëÇØ ³­¼ö »ı¼º ¿£ÁøÀ» ÃÊ±âÈ­ ÇÑ´Ù.
+        // random_device ë¥¼ í†µí•´ ë‚œìˆ˜ ìƒì„± ì—”ì§„ì„ ì´ˆê¸°í™” í•œë‹¤.
         mt19937 gen(random());
 
-        // 0 ºÎÅÍ 15 ±îÁö ±ÕµîÇÏ°Ô ³ªÅ¸³ª´Â ³­¼ö¿­À» »ı¼ºÇÏ±â À§ÇØ ±Õµî ºĞÆ÷ Á¤ÀÇ.
+        // 0 ë¶€í„° 15 ê¹Œì§€ ê· ë“±í•˜ê²Œ ë‚˜íƒ€ë‚˜ëŠ” ë‚œìˆ˜ì—´ì„ ìƒì„±í•˜ê¸° ìœ„í•´ ê· ë“± ë¶„í¬ ì •ì˜.
         uniform_int_distribution<int> dis(0, 15);
 
         for (int i = 0; i < 16; i++) { // shuffle
@@ -231,15 +240,15 @@ public :
             answerMap[i / 4][i % 4] = answerMap[rand / 4][rand % 4];
             answerMap[rand / 4][rand % 4] = temp;
         }
-        
-    }
-
-
-    void drawCard() { // Ä«µå À§Ä¡¿Í »óÅÂ¿¡ µû¶ó Ä«µå¸¦ ±×·ÁÁÖ´Â ÇÔ¼ö
 
     }
 
-     void checkCard() { // player°¡ ¼±ÅÃÇÑ Ä«µåµéÀÌ °°Àº ¸ğ¾çÀÎÁö È®ÀÎÇÏ´Â ÇÔ¼ö
+
+    void drawCard() { // ì¹´ë“œ ìœ„ì¹˜ì™€ ìƒíƒœì— ë”°ë¼ ì¹´ë“œë¥¼ ê·¸ë ¤ì£¼ëŠ” í•¨ìˆ˜
+
+    }
+
+    void checkCard() { // playerê°€ ì„ íƒí•œ ì¹´ë“œë“¤ì´ ê°™ì€ ëª¨ì–‘ì¸ì§€ í™•ì¸í•˜ëŠ” í•¨ìˆ˜
         if (flipCount == 2) {
             if (answerMap[flipPos[0].y][flipPos[0].x] == answerMap[flipPos[1].y][flipPos[1].x]) {
                 matchedCardCount++;
@@ -253,15 +262,15 @@ public :
         }
     }
 
-    void printResult() { // °ÔÀÓÀÌ ³¡³ª¸é °á°úÃ¢ Ãâ·Â
+    void printResult() { // ê²Œì„ì´ ëë‚˜ë©´ ê²°ê³¼ì°½ ì¶œë ¥
         GotoXY(0, 17);
-        cout << "¦£¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¤   " <<endl;
-        cout << "                                               " <<endl;
+        cout << "â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   " << endl;
         cout << "                                               " << endl;
-        cout << "              " << "RECORD : " << timeCount / 1000 <<" Sec" << endl;
+        cout << "                                               " << endl;
+        cout << "              " << "RECORD : " << timeCount / 1000 << " Sec" << endl;
         cout << "                                                " << endl;
         cout << "                                               " << endl;
-        cout << "¦¦¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¥ ";
+        cout << "â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ ";
     }
 
     void setTimeCount() {
