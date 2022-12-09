@@ -365,6 +365,7 @@ public:
         SetTextColor(WHITE);
         drawStatus();
     }
+
     void drawStatus() { // 게임 중 상태창 출력
         GotoXY(0, 17);
         cout << "┌──────────────────────────────────┐   " << endl;
@@ -376,7 +377,7 @@ public:
         cout << "└──────────────────────────────────┘ ";
     }
 
-    void setTotalScore() {
+    void setTotalScore() { // 총점을 계산하여 저장하는 함수
         totalScore = 0;
         for (int i = 0; i < 10; i++) {
             if (score[i] >= 0) {
@@ -385,7 +386,7 @@ public:
         }
     }
 
-    int getScore(int num) {
+    int getScore(int num) { // 각 점수판에 따라 점수를 계산하여 반환하는 함수
         int result = 0;
         switch (num)
         {
@@ -483,7 +484,7 @@ public:
         return result;
     }
 
-    void selectScore() {
+    void selectScore() { // 점수판에서 enter를 입력했을때 점수를 선택하여 할당하는 함수
         if (score[player.y] < 0) {
             score[player.y] = getScore(player.y);
             reRollCount = 0;
@@ -491,14 +492,14 @@ public:
         }
     }
 
-    void selectDice() {
+    void selectDice() { // 주사위를 선택하는 함수
         if (select[player.x] == false) {
             select[player.x] = true;
         }
         else select[player.x] = false;
     }
 
-    int rollDice() {
+    int rollDice() { // 1~6까지 랜덤한 수를 반환하는 함수
         random_device random;
 
         // random_device 를 통해 난수 생성 엔진을 초기화 한다.
@@ -510,7 +511,7 @@ public:
         
     }
 
-    void reRoll() {
+    void reRoll() { // 선택한 주사위에 다시 랜덤값을 할당하는 함수
         if (reRollCount < 5) {
             for (int i = 0; i < 5; i++) {
                 if (select[i] == true) {
@@ -522,7 +523,7 @@ public:
         }
     }
 
-    void printResult() {
+    void printResult() { // 결과창 출력
         status = "Your Score : " + to_string(totalScore) +"          ";
         drawStatus();
         Sleep(5000);
